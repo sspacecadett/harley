@@ -9,9 +9,10 @@ I needed a project outside of my GIS studies to expand my Python prowess and rem
 - Responds to a few key phrases when name mentioned
 - /blackjack: Plays blackjack!
 
-**Possible changes:**
+**Future changes:**
 - Implement currency system, including player balance
 - Create more functions for alternative means of increasing funds
+- Sybau reply lists current hour (clientside if possible)
 
 **Known issues:**
 - Dealer does not hit to 17 if they draw a soft hand *(Potentially fixed)*
