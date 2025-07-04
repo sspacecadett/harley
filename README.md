@@ -1,2 +1,5 @@
 # harley
-discord blackjack bot
+Discord Blackjack bot
+
+Known issues:
+- Dealer does not hit to 17 if they draw a soft hand
