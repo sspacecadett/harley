@@ -1,3 +1,5 @@
+#Version 1.1
+
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -31,6 +33,7 @@ async def on_ready():
     try:
         synced = await client.tree.sync()
         print(f'Synced {len(synced)} command(s)')
+        print('------')
     except Exception as e:
         print(f'Failed to sync commands: {e}')
 
@@ -58,7 +61,17 @@ class blackjack_game:
     def deal_initial_cards(self):
         for i in range(2):
             self.player_hand.append(self.deck.pop())
+
+        for i in range(1): # Dealer gets one card initially
             self.dealer_hand.append(self.deck.pop())
+
+        player_value = self.calculate_hand_value(self.player_hand)
+        dealer_value = self.calculate_hand_value(self.dealer_hand)
+        
+        # Check for initial blackjack
+        if self.calculate_hand_value(self.player_hand) == 21:
+            self.dealer_bust = True # Dealer busts if player has blackjack (i was too lazy to implement a proper variable for this)
+            
 
     # Function to calculate the value of a hand
     def calculate_hand_value(self, hand):
@@ -85,16 +98,17 @@ class blackjack_game:
     def hit(self):
         if not self.player_bust:
             self.player_hand.append(self.deck.pop())
+            self.check_bust()
 
-        if not self.dealer_bust:
-            while self.calculate_hand_value(self.dealer_hand) < 17:
-                self.dealer_hand.append(self.deck.pop())
+        if not self.dealer_bust and not self.player_bust:
+            self.dealer_hand.append(self.deck.pop())
+            self.check_bust()
 
     # Function to stand (end turn)
     def stand(self):
         self.check_bust()
         if not self.dealer_bust:
-            if self.calculate_hand_value(self.dealer_hand) < 21:
+            if self.calculate_hand_value(self.dealer_hand) < 17:
                 self.dealer_hand.append(self.deck.pop())
         self.check_bust()
 
@@ -128,24 +142,48 @@ class blackjack_view(discord.ui.View):
             player_value = self.game.calculate_hand_value(self.game.player_hand)
             dealer_value = self.game.calculate_hand_value(self.game.dealer_hand)
 
+            # Initialize content variable
+            # Determines the output message based on the game state
+            content = ("")
+            
             # Makes appropriate responses based on the hand values
             if self.game.player_bust:
                 content = (
+                    "==============================\n"
+                    f"Dealer's hand: {format_hand(self.game.dealer_hand)} (Value: **__{dealer_value}__**)!\n"
                     f"Your hand: {format_hand(self.game.player_hand)} (Value: **__{player_value}__**)!\n"
+                    
                     f"Sorry {self.user.mention}, you bust!")
+                self.stopped = True
+            elif self.game.dealer_bust:
+                content = (
+                    "==============================\n"
+                    f"Dealer's hand: {format_hand(self.game.dealer_hand)} (Value: **__{dealer_value}__**)!\n"
+                    f"Your hand: {format_hand(self.game.player_hand)} (Value: **__{player_value}__**)!\n"
+                    "==============================\n"
+                    f"Dealer bust, you win!"
+                )
                 self.stopped = True
             elif player_value == 21:
                 content = (
+                    "==============================\n"
+                    f"Dealer's hand: {format_hand(self.game.dealer_hand)} (Value: **__{dealer_value}__**)!\n"
                     f"Your hand: {format_hand(self.game.player_hand)} (Value: **__{player_value}__**)!\n"
+                    "==============================\n"
                     f"Blackjack! You win!")
                 self.stopped = True
             else:
                 content = (
-                    f"Your hand: {format_hand(self.game.player_hand)} (Value: **__{player_value}__**)!\n"
+                    "==============================\n"
                     f"Dealer's hand: {format_hand(self.game.dealer_hand)} (Value: **__{dealer_value}__**)!\n"
+                    f"Your hand: {format_hand(self.game.player_hand)} (Value: **__{player_value}__**)!\n"
+                    "==============================\n"
                 )
+                # fucking uhhh repeat the buttons somehow
+            
+            # Update the message with the final hand values; only reproduce buttons if the game is not over
             await interaction.response.edit_message(content=content, view=None if self.stopped else self)
-        
+
         except Exception as e:
             print(traceback.print_exc())
 
@@ -162,25 +200,82 @@ class blackjack_view(discord.ui.View):
             player_value = self.game.calculate_hand_value(self.game.player_hand)
             dealer_value = self.game.calculate_hand_value(self.game.dealer_hand)
 
+            # Initialize content variable
+            # Determines the output message based on the game state
+            content = ("")
+
             # Makes appropriate responses based on the hand values
             if self.game.dealer_bust:
-                content = (f"Dealer bust, you win!")
+                content = (
+                    "==============================\n"
+                    f"Dealer's hand: {format_hand(self.game.dealer_hand)} (Value: **__{dealer_value}__**)!\n"
+                    f"Your hand: {format_hand(self.game.player_hand)} (Value: **__{player_value}__**)!\n"
+                    "==============================\n"
+                    f"Dealer bust, you win!"
+                )
                 self.stopped = True
             elif dealer_value == player_value == 21:
-                content = (f"Push! Both you and the dealer hit blackjack.")
+                content = (
+                    "==============================\n"
+                    f"Dealer's hand: {format_hand(self.game.dealer_hand)} (Value: **__{dealer_value}__**)!\n"
+                    f"Your hand: {format_hand(self.game.player_hand)} (Value: **__{player_value}__**)!\n"
+                    "==============================\n"
+                    f"Push! Both you and the dealer hit blackjack."
+                )
+            elif dealer_value == player_value == 17: #Super specific case but the script shits itself if this isn't here
+                content = (
+                    "==============================\n"
+                    f"Dealer's hand: {format_hand(self.game.dealer_hand)} (Value: **__{dealer_value}__**)!\n"
+                    f"Your hand: {format_hand(self.game.player_hand)} (Value: **__{player_value}__**)!\n"
+                    "==============================\n"
+                    f"Push! Both you and the dealer have equal value."
+                )
                 self.stopped = True
             elif dealer_value == 21:
-                content = (f"Dealer has blackjack! You lose.")
-            elif dealer_value > player_value & dealer_value <= 21:
-                content = (f"Dealer wins!")
+                content = (
+                    "==============================\n"
+                    f"Dealer's hand: {format_hand(self.game.dealer_hand)} (Value: **__{dealer_value}__**)!\n"
+                    f"Your hand: {format_hand(self.game.player_hand)} (Value: **__{player_value}__**)!\n"
+                    "==============================\n"
+                    f"Dealer has blackjack! You lose!"
+                )
+                self.stopped = True
+            elif player_value < dealer_value <= 21:
+                content = (
+                    "==============================\n"
+                    f"Dealer's hand: {format_hand(self.game.dealer_hand)} (Value: **__{dealer_value}__**)!\n"
+                    f"Your hand: {format_hand(self.game.player_hand)} (Value: **__{player_value}__**)!\n"
+                    "==============================\n"
+                    f"Dealer wins!"
+                )
+                self.stopped = True
+            elif 21 >= player_value > dealer_value:
+                content = (
+                    "==============================\n"
+                    f"Dealer's hand: {format_hand(self.game.dealer_hand)} (Value: **__{dealer_value}__**)!\n"
+                    f"Your hand: {format_hand(self.game.player_hand)} (Value: **__{player_value}__**)!\n"
+                    "==============================\n"
+                    f"You win!"
+                )
                 self.stopped = True
             else:
-                content = (f"You win!")
-                self.stopped = True
-            content = (
-                f"Your hand: {format_hand(self.game.player_hand)} (Value: **__{player_value}__**)!\n"
-                f"Dealer's hand: {format_hand(self.game.dealer_hand)} (Value: **__{dealer_value}__**)!\n"
-            )
+                # Repeat dealer hit until reaching 17 or bust; dealer must hit if it has fewer cards than the player
+                if not self.game.dealer_bust and dealer_value < 17 or dealer_value < 17 and not len(self.game.dealer_hand) == len(self.game.player_hand):
+                    self.game.stand()
+                    dealer_value = self.game.calculate_hand_value(self.game.dealer_hand)
+                    content = ( 
+                        f"Dealer hits."
+                        "==============================\n"
+                        f"Dealer's hand: {format_hand(self.game.dealer_hand)} (Value: **__{dealer_value}__**)\n"
+                        f"Your hand: {format_hand(self.game.player_hand)} (Value: **__{player_value}__**)!\n"
+                        "==============================\n"
+                    )
+                    self.game.check_bust()
+                    if self.game.dealer_bust:
+                        content += f"Dealer bust! You win!\n"
+                        self.stopped = True
+            
+            # Update the message with the final hand values; only reproduce buttons if the game is not over
             await interaction.response.edit_message(content=content, view=None if self.stopped else self)
 
         except Exception as e:
@@ -204,6 +299,17 @@ async def blackjack(interaction: discord.Interaction):
         # Calculate the initial hand values
         player_value = game.calculate_hand_value(game.player_hand)
         dealer_value = game.calculate_hand_value(game.dealer_hand)
+        check_bust = game.check_bust()
+        if game.dealer_bust == True:
+            await interaction.response.send_message(
+                content = (
+                    "==============================\n"
+                    f"Dealer's hand: {format_hand(game.dealer_hand)} (Value: **__{dealer_value}__**)!\n"
+                    f"Your hand: {format_hand(game.player_hand)} (Value: **__{player_value}__**)!\n"
+                    "==============================\n"
+                    f"You win!"
+                )
+            )
 
         # Enables blackjack buttons
         view = blackjack_view(game, interaction.user)
@@ -212,13 +318,15 @@ async def blackjack(interaction: discord.Interaction):
             content=(
                 f"Welcome to the table, {interaction.user.mention}.\n"
                 "==============================\n"
-                f"Your hand: {format_hand(game.player_hand)} | Value: **__{player_value}__**\n"
                 f"Dealer's hand: {format_hand(game.dealer_hand)} | Value: **__{dealer_value}__**\n"
+                f"Your hand: {format_hand(game.player_hand)} | Value: **__{player_value}__**\n"
                 "==============================\n"
             ),
             
             view=view
         )
+
+        
 
     except Exception as e:
         print(traceback.print_exc())
