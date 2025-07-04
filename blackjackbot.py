@@ -264,7 +264,7 @@ class blackjack_view(discord.ui.View):
                     self.game.stand()
                     dealer_value = self.game.calculate_hand_value(self.game.dealer_hand)
                     content = ( 
-                        f"Dealer hits."
+                        f"Dealer hits.\n"
                         "==============================\n"
                         f"Dealer's hand: {format_hand(self.game.dealer_hand)} (Value: **__{dealer_value}__**)\n"
                         f"Your hand: {format_hand(self.game.player_hand)} (Value: **__{player_value}__**)!\n"
