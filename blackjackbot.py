@@ -104,7 +104,7 @@ class blackjack_game:
             self.player_hand.append(self.deck.pop())
             self.check_bust()
 
-        if not self.dealer_bust:
+        if not self.dealer_bust and not self.player_bust:
             self.dealer_hand.append(self.deck.pop())
             self.check_bust()
 
@@ -162,7 +162,7 @@ class blackjack_view(discord.ui.View):
                     f"Your hand: {format_hand(self.game.player_hand)} " +
                     f"(Value: **__{player_value}__**)!\n"
                     "==============================\n"
-                    f"Sorry {self.user.mention}, you bust!")
+                    f"Sorry, you bust!")
                 self.stopped = True
             elif self.game.dealer_bust:
                 content = (
