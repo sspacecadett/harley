@@ -296,7 +296,10 @@ async def blackjack(interaction: discord.Interaction):
         # Calculate the initial hand values
         player_value = game.calculate_hand_value(game.player_hand)
         dealer_value = game.calculate_hand_value(game.dealer_hand)
-        check_bust = game.check_bust()
+
+        # Checks if first hand is a blackjack
+        game.check_bust()
+
         if game.dealer_bust == True:
             await interaction.response.send_message(
                 content = (
@@ -304,7 +307,7 @@ async def blackjack(interaction: discord.Interaction):
                     f"Dealer's hand: {format_hand(game.dealer_hand)} (Value: **__{dealer_value}__**)!\n"
                     f"Your hand: {format_hand(game.player_hand)} (Value: **__{player_value}__**)!\n"
                     "==============================\n"
-                    f"You win!"
+                    f"Blackjack! You win!"
                 )
             )
 
