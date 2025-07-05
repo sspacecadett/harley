@@ -179,7 +179,6 @@ class blackjack_view(discord.ui.View):
                     f"Your hand: {format_hand(self.game.player_hand)} (Value: **__{player_value}__**)!\n"
                     "==============================\n"
                 )
-                # fucking uhhh repeat the buttons somehow
             
             # Update the message with the final hand values; only reproduce buttons if the game is not over
             await interaction.response.edit_message(content=content, view=None if self.stopped else self)
@@ -204,6 +203,19 @@ class blackjack_view(discord.ui.View):
             # Determines the output message based on the game state
             content = ("")
 
+            # Loop for dealer's turn
+            while not self.game.dealer_bust and dealer_value < 17: # Repeat dealer hit until reaching 17 or bust
+                self.game.stand()
+                dealer_value = self.game.calculate_hand_value(self.game.dealer_hand)
+                content = ( 
+                    f"Dealer hits.\n"
+                    "==============================\n"
+                    f"Dealer's hand: {format_hand(self.game.dealer_hand)} (Value: **__{dealer_value}__**)\n"
+                    f"Your hand: {format_hand(self.game.player_hand)} (Value: **__{player_value}__**)!\n"
+                    "==============================\n"
+                )
+                self.game.check_bust()
+
             # Makes appropriate responses based on the hand values
             if self.game.dealer_bust:
                 content = (
@@ -222,7 +234,7 @@ class blackjack_view(discord.ui.View):
                     "==============================\n"
                     f"Push! Both you and the dealer hit blackjack."
                 )
-            elif dealer_value == player_value == 17: #Super specific case but the script shits itself if this isn't here
+            elif dealer_value == player_value >= 17: #Super specific case but the script shits itself if this isn't here
                 content = (
                     "==============================\n"
                     f"Dealer's hand: {format_hand(self.game.dealer_hand)} (Value: **__{dealer_value}__**)!\n"
@@ -249,7 +261,7 @@ class blackjack_view(discord.ui.View):
                     f"Dealer wins!"
                 )
                 self.stopped = True
-            elif 21 >= player_value > dealer_value:
+            elif 21 >= player_value > dealer_value >= 17:
                 content = (
                     "==============================\n"
                     f"Dealer's hand: {format_hand(self.game.dealer_hand)} (Value: **__{dealer_value}__**)!\n"
@@ -258,22 +270,6 @@ class blackjack_view(discord.ui.View):
                     f"You win!"
                 )
                 self.stopped = True
-            else:
-                # Repeat dealer hit until reaching 17 or bust; dealer must hit if it has fewer cards than the player
-                if not self.game.dealer_bust and dealer_value < 17 or dealer_value < 17 and not len(self.game.dealer_hand) == len(self.game.player_hand):
-                    self.game.stand()
-                    dealer_value = self.game.calculate_hand_value(self.game.dealer_hand)
-                    content = ( 
-                        f"Dealer hits.\n"
-                        "==============================\n"
-                        f"Dealer's hand: {format_hand(self.game.dealer_hand)} (Value: **__{dealer_value}__**)\n"
-                        f"Your hand: {format_hand(self.game.player_hand)} (Value: **__{player_value}__**)!\n"
-                        "==============================\n"
-                    )
-                    self.game.check_bust()
-                    if self.game.dealer_bust:
-                        content += f"Dealer bust! You win!\n"
-                        self.stopped = True
             
             # Update the message with the final hand values; only reproduce buttons if the game is not over
             await interaction.response.edit_message(content=content, view=None if self.stopped else self)
@@ -341,7 +337,7 @@ async def on_message(message):
         return
     
     if f"hi {client.user.name.lower()}" in message.content.lower():
-        await message.channel.send(f"Hello {message.author.name}!")
+        await message.channel.send(f"Hello {message.author.mention}!")
         print(f"{message.author.name} said hi to Harley in {message.channel.name}")
 
     if f"sybau {client.user.name.lower()}" in message.content.lower():
