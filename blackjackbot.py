@@ -234,7 +234,7 @@ class blackjack_view(discord.ui.View):
                     "==============================\n"
                     f"Push! Both you and the dealer hit blackjack."
                 )
-            elif dealer_value == player_value >= 17: #Super specific case but the script shits itself if this isn't here
+            elif dealer_value == player_value >= 17: # Script shits itself without this condition
                 content = (
                     "==============================\n"
                     f"Dealer's hand: {format_hand(self.game.dealer_hand)} (Value: **__{dealer_value}__**)!\n"
@@ -290,6 +290,7 @@ async def blackjack(interaction: discord.Interaction):
     try:
         #Initialize the game and deal initial cards
         game = blackjack_game()
+        game.__init__()
         game.deal_initial_cards()
 
         # Calculate the initial hand values
