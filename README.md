@@ -10,6 +10,7 @@ I needed a project outside of my GIS studies to expand my Python prowess and rem
 - /blackjack: Plays blackjack!
 
 **Future changes:**
+- Blackjack details stored in embed instead of basic string
 - Implement currency system, including player balance
 - Create more functions for alternative means of increasing funds
 - Sybau reply lists current hour (interaction user timezone if possible)
