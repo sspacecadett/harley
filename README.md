@@ -15,5 +15,4 @@ I needed a project outside of my GIS studies to expand my Python prowess and rem
 - Sybau reply lists current hour (interaction user timezone if possible)
 
 **Known issues:**
-- Dealer does not hit to 17 if they draw a soft hand *(Potentially fixed)*
-- Hit/Stand buttons can sometimes take took long to appear (Python moment but this code is messy atm so maybe im the problem)
+- Hit/Stand buttons can sometimes take took long to appear (Python moment but this code is messy so maybe im the problem)
