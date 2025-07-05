@@ -104,10 +104,6 @@ class blackjack_game:
             self.player_hand.append(self.deck.pop())
             self.check_bust()
 
-        if not self.dealer_bust and not self.player_bust:
-            self.dealer_hand.append(self.deck.pop())
-            self.check_bust()
-
     # Function to stand (end turn)
     def stand(self):
         self.check_bust()
