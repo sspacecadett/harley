@@ -290,7 +290,6 @@ async def blackjack(interaction: discord.Interaction):
     try:
         #Initialize the game and deal initial cards
         game = blackjack_game()
-        game.__init__()
         game.deal_initial_cards()
 
         # Calculate the initial hand values
