@@ -12,9 +12,8 @@ I needed a project outside of my GIS studies to expand my Python prowess and rem
 **Future changes:**
 - Implement currency system, including player balance
 - Create more functions for alternative means of increasing funds
-- Sybau reply lists current hour (clientside if possible)
+- Sybau reply lists current hour (interaction user timezone if possible)
 
 **Known issues:**
 - Dealer does not hit to 17 if they draw a soft hand *(Potentially fixed)*
 - Hit/Stand buttons can sometimes take took long to appear (Python moment but this code is messy atm so maybe im the problem)
-- Dealer hits even if player bust *(Potentially fixed)*
