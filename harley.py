@@ -2,12 +2,14 @@
 
 import discord
 from discord import app_commands
-from discord.ext import commands
+from discord.ext import commands, tasks
+from discord.ext.tasks import loop
 import logging
 from dotenv import load_dotenv
 import os
 import traceback
 import random
+import asyncio
 
 # Load environment variables
 load_dotenv()
@@ -29,21 +31,35 @@ intents.members = True
 client = commands.Bot(command_prefix="/", intents=intents)
 tree = client.tree  # commands.Bot already has a tree attribute
 
+# Defines rotating activities
+statuses = (
+    discord.Game(name = "Balatro"),
+    discord.Game(name = "Blackjack"),
+    discord.Game(name = "Texas Hold'Em"),
+    discord.CustomActivity(name = "Mixing drinks and changing lives"),
+    discord.Activity(type = discord.ActivityType.listening, name = "Machine Love")
+)
+activity = random.choice(statuses) 
+
 # Start up message
 @client.event
 async def on_ready():
-    await client.change_presence(
-        status = discord.Status.do_not_disturb, 
-        activity = discord.Game(name="Mixing drinks and changing lives")
-        ) 
     print(f'Logged in as {client.user.name}')
-    print('------')
+    await client.change_presence(
+        status = discord.Status.do_not_disturb,
+        activity = activity # Initializes bot status
+        )
+    print(f'Set activity: {activity}')
+    print('----------------------------')
+
     try:
         synced = await client.tree.sync()
         print(f'Synced {len(synced)} command(s)')
-        print('------')
+        print('----------------------------')
     except Exception as e:
         print(f'Failed to sync commands: {e}')
+
+################################################################################
 
 # Blackjack function goes here
 class blackjack_game:
@@ -377,8 +393,9 @@ async def blackjack(interaction: discord.Interaction):
         print(f"An error occurred: {e}")
         return
    
+################################################################################
 
-
+# Unique message prompts
 @client.event
 async def on_message(message):
     if message.author == client.user:
@@ -410,6 +427,20 @@ async def on_message(message):
 
     await client.process_commands(message)
 
+################################################################################
+
+# Sets loop to rotate statuses
+@loop(seconds=30)
+# Initially tried to integrate this loop into on_ready; Script hang
+async def status_change(): 
+    activity = random.choice(statuses)
+    await client.change_presence(activity = activity)
+    print(f'Set activity: {activity}')
+        
+
+# Waits for bot to initialize before starting loop
+
+################################################################################
 client.run(token, log_handler=handler, log_level=logging.DEBUG)
 
 
