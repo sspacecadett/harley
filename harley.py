@@ -32,6 +32,10 @@ tree = client.tree  # commands.Bot already has a tree attribute
 # Start up message
 @client.event
 async def on_ready():
+    await client.change_presence(
+        status = discord.status.do_not_disturb, 
+        activity = discord.Game(name="Mixing drinks and changing lives")
+        ) 
     print(f'Logged in as {client.user.name}')
     print('------')
     try:
