@@ -1,4 +1,4 @@
-# harley
+# Harley!
 Discord Blackjack bot inspired by the dank memer discord bot (https://www.dankmemer.lol/)
 ***
 
