@@ -31,25 +31,10 @@ intents.members = True
 client = commands.Bot(command_prefix="/", intents=intents)
 tree = client.tree  # commands.Bot already has a tree attribute
 
-# Defines rotating activities
-statuses = (
-    discord.Game(name = "Balatro"),
-    discord.Game(name = "Blackjack"),
-    discord.Game(name = "Texas Hold'Em"),
-    discord.CustomActivity(name = "Mixing drinks and changing lives"),
-    discord.Activity(type = discord.ActivityType.listening, name = "Machine Love")
-)
-activity = random.choice(statuses) 
-
 # Start up message
 @client.event
 async def on_ready():
     print(f'Logged in as {client.user.name}')
-    await client.change_presence(
-        status = discord.Status.do_not_disturb,
-        activity = activity # Initializes bot status
-        )
-    print(f'Set activity: {activity}')
     print('----------------------------')
 
     try:
@@ -58,6 +43,10 @@ async def on_ready():
         print('----------------------------')
     except Exception as e:
         print(f'Failed to sync commands: {e}')
+    
+    # Starts status rotation
+    if not status_change.is_running():
+        status_change.start()
 
 ################################################################################
 
@@ -428,17 +417,33 @@ async def on_message(message):
     await client.process_commands(message)
 
 ################################################################################
+# Defines rotating activities
+statuses = (
+    discord.Game(name = "Balatro"),
+    discord.Game(name = "Blackjack"),
+    discord.Game(name = "Texas Hold'Em"),
+    discord.CustomActivity(name = "Mixing drinks and changing lives"),
+    discord.Activity(type = discord.ActivityType.listening, name = "Machine Love")
+)
+activity = random.choice(statuses) 
 
 # Sets loop to rotate statuses
-@loop(seconds=30)
+@loop(seconds=600)
 # Initially tried to integrate this loop into on_ready; Script hang
 async def status_change(): 
     activity = random.choice(statuses)
-    await client.change_presence(activity = activity)
+    await client.change_presence(
+        status = discord.Status.do_not_disturb,
+        activity = activity
+        )
     print(f'Set activity: {activity}')
         
 
 # Waits for bot to initialize before starting loop
+try:
+    status_change.before_loop(client.wait_until_ready)
+except Exception as e:
+    print(f'Failed to run status_change: {e}')
 
 ################################################################################
 client.run(token, log_handler=handler, log_level=logging.DEBUG)
