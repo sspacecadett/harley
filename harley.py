@@ -470,7 +470,7 @@ async def on_message(message):
 
     if f"sybau {client.user.name.lower()}" in message.content.lower():
         await message.channel.send(
-            f"You up at 4 in the morning playin blackjack, fuckin loser"
+            f"You up at <t:1752301561:t> playin blackjack, fuckin loser"
             )
         print(
             f"{message.author.name} told {client.user.name} to shut her " +
