@@ -3,7 +3,7 @@
 
 ![](https://github.com/sspacecadett/harley/blob/main/harleyrecolored.png)
 
-I needed a project outside of my GIS studies to expand my Python prowess and remembered dank memer's super fun blackjack feature I used to play years ago. This is a severely neutered version at the moment, but I might expand it in the future to be a bit more comprehensive. For the time being, it exists as little more than a fun personal project for a private discord server.
+I needed a project outside of my GIS studies to expand my Python prowess and remembered dank memer's super fun blackjack feature I used to play years ago. This is a severely neutered version at the moment, but I might expand it in the future to be a bit more comprehensive. For the time being, it exists as little more than a fun personal project.
 
 ***
 **Current functions:**
