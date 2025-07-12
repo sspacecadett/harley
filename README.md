@@ -1,4 +1,5 @@
 # Harley!
+![](https://github.com/sspacecadett/harley/blob/main/harleyrecolored.png)
 Discord Blackjack bot inspired by the dank memer discord bot (https://www.dankmemer.lol/)
 ***
 
