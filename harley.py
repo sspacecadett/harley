@@ -1,5 +1,3 @@
-#Version 1.1
-
 import discord
 from discord import app_commands
 from discord.ext import commands, tasks
@@ -154,58 +152,80 @@ class blackjack_view(discord.ui.View):
             player_value = self.game.calculate_hand_value(self.game.player_hand)
             dealer_value = self.game.calculate_hand_value(self.game.dealer_hand)
 
-            # Initialize content variable
-            # Determines the output message based on the game state
-            content = ("")
-            
             # Makes appropriate responses based on the hand values
             if self.game.player_bust:
-                content = (
-                    "==============================\n"
-                    f"Dealer's hand: {format_hand(self.game.dealer_hand)} " +
-                    f"(Value: **__{dealer_value}__**)!\n"
-                    f"Your hand: {format_hand(self.game.player_hand)} " +
-                    f"(Value: **__{player_value}__**)!\n"
-                    "==============================\n"
-                    f"Sorry, you bust!")
+                embed = discord.Embed(title = "================================")
+                embed.add_field(
+                    name = "Dealer hand:", 
+                    value = f"{format_hand(self.game.dealer_hand)} " +
+                    f"| Value: **{dealer_value}**!", 
+                    inline=True
+                    )
+                embed.add_field(
+                    name = "Player hand:", 
+                    value = f"{format_hand(self.game.player_hand)} " +
+                    f"| Value: **{player_value}**!", 
+                    inline=True
+                    )
+                embed.set_footer(text = "Sorry, you bust!")
                 self.stopped = True
+
             elif self.game.dealer_bust:
-                content = (
-                    "==============================\n"
-                    f"Dealer's hand: {format_hand(self.game.dealer_hand)} " +
-                    f"(Value: **__{dealer_value}__**)!\n"
-                    f"Your hand: {format_hand(self.game.player_hand)} " + 
-                    f"(Value: **__{player_value}__**)!\n"
-                    "==============================\n"
-                    f"Dealer bust, you win!"
-                )
+                embed = discord.Embed(title = "================================")
+                embed.add_field(
+                    name = "Dealer hand:", 
+                    value = f"{format_hand(self.game.dealer_hand)} " +
+                    f"| Value: **{dealer_value}**!", 
+                    inline=True
+                    )
+                embed.add_field(
+                    name = "Player hand:", 
+                    value = f"{format_hand(self.game.player_hand)} " +
+                    f"| Value: **{player_value}**!", 
+                    inline=True
+                    )
+                embed.set_footer(text = "Dealer bust. You win!")
                 self.stopped = True
+
             elif player_value == 21:
-                content = (
-                    "==============================\n"
-                    f"Dealer's hand: {format_hand(self.game.dealer_hand)} " +
-                    f"(Value: **__{dealer_value}__**)!\n"
-                    f"Your hand: {format_hand(self.game.player_hand)} " +
-                    f"(Value: **__{player_value}__**)!\n"
-                    "==============================\n"
-                    f"Blackjack! You win!")
+                embed = discord.Embed(title = "================================")
+                embed.add_field(
+                    name = "Dealer hand:", 
+                    value = f"{format_hand(self.game.dealer_hand)} " +
+                    f"| Value: **{dealer_value}**!", 
+                    inline=True
+                    )
+                embed.add_field(
+                    name = "Player hand:", 
+                    value = f"{format_hand(self.game.player_hand)} " +
+                    f"| Value: **{player_value}**!", 
+                    inline=True
+                    )
+                embed.set_footer(text = "You hit Blackjack. You win!")
                 self.stopped = True
+
             else:
-                content = (
-                    "==============================\n"
-                    f"Dealer's hand: {format_hand(self.game.dealer_hand)} " + 
-                    f"(Value: **__{dealer_value}__**)!\n"
-                    f"Your hand: {format_hand(self.game.player_hand)} " +
-                    f"(Value: **__{player_value}__**)!\n"
-                    "==============================\n"
-                )
+                embed = discord.Embed(title = "================================")
+                embed.add_field(
+                    name = "Dealer hand:", 
+                    value = f"{format_hand(self.game.dealer_hand)} " +
+                    f"| Value: **{dealer_value}**!", 
+                    inline=True
+                    )
+                embed.add_field(
+                    name = "Player hand:", 
+                    value = f"{format_hand(self.game.player_hand)} " +
+                    f"| Value: **{player_value}**!", 
+                    inline=True
+                    )
             
             # Update the message with the final hand values; 
             # Only reproduce buttons if the game is not over
             await interaction.response.edit_message(
-                content=content, 
+                embed=embed,
                 view=None if self.stopped else self
                 )
+            return
 
         except Exception as e:
             print(traceback.print_exc())
@@ -226,99 +246,137 @@ class blackjack_view(discord.ui.View):
             player_value = self.game.calculate_hand_value(self.game.player_hand)
             dealer_value = self.game.calculate_hand_value(self.game.dealer_hand)
 
-            # Initialize content variable
-            # Determines the output message based on the game state
-            content = ("")
-
             # Loop for dealer's turn; Repeat dealer hit until reaching 17 or bust
             while not self.game.dealer_bust and dealer_value < 17:
                 self.game.stand()
                 dealer_value = self.game.calculate_hand_value(self.game.dealer_hand)
-                content = ( 
-                    f"Dealer hits.\n"
-                    "==============================\n"
-                    f"Dealer's hand: {format_hand(self.game.dealer_hand)} " + 
-                    f"(Value: **__{dealer_value}__**)\n"
-                    f"Your hand: {format_hand(self.game.player_hand)} " +  
-                    f"(Value: **__{player_value}__**)!\n"
-                    "==============================\n"
-                )
+                embed = discord.Embed(title = "================================")
+                embed.add_field(name = "Dealer hits.")
+                embed.add_field(
+                    name = "Dealer hand:", 
+                    value = f"{format_hand(self.game.dealer_hand)} " +
+                    f"| Value: **{dealer_value}**!", 
+                    inline=True
+                    )
+                embed.add_field(
+                    name = "Player hand:", 
+                    value = f"{format_hand(self.game.player_hand)} " +
+                    f"| Value: **{player_value}**!", 
+                    inline=True
+                    )
                 self.game.check_bust()
 
             # Makes appropriate responses based on the hand values
             if self.game.dealer_bust:
-                content = (
-                    "==============================\n"
-                    f"Dealer's hand: {format_hand(self.game.dealer_hand)} " + 
-                    f"(Value: **__{dealer_value}__**)!\n"
-                    f"Your hand: {format_hand(self.game.player_hand)} " + 
-                    f"(Value: **__{player_value}__**)!\n"
-                    "==============================\n"
-                    f"Dealer bust, you win!"
-                )
+                embed = discord.Embed(title = "================================")
+                embed.add_field(
+                    name = "Dealer hand:", 
+                    value = f"{format_hand(self.game.dealer_hand)} " +
+                    f"| Value: **{dealer_value}**!", 
+                    inline=True
+                    )
+                embed.add_field(
+                    name = "Player hand:", 
+                    value = f"{format_hand(self.game.player_hand)} " +
+                    f"| Value: **{player_value}**!", 
+                    inline=True
+                    )
+                embed.set_footer(text = "Dealer bust. You win!")
                 self.stopped = True
+
             elif dealer_value == player_value == 21:
-                content = (
-                    "==============================\n"
-                    f"Dealer's hand: {format_hand(self.game.dealer_hand)} " +
-                    f"(Value: **__{dealer_value}__**)!\n"
-                    f"Your hand: {format_hand(self.game.player_hand)} " +
-                    f"(Value: **__{player_value}__**)!\n"
-                    "==============================\n"
-                    f"Push! Both you and the dealer hit blackjack."
-                )
+                embed = discord.Embed(title = "================================")
+                embed.add_field(
+                    name = "Dealer hand:", 
+                    value = f"{format_hand(self.game.dealer_hand)} " +
+                    f"| Value: **{dealer_value}**!", 
+                    inline=True
+                    )
+                embed.add_field(
+                    name = "Player hand:", 
+                    value = f"{format_hand(self.game.player_hand)} " +
+                    f"| Value: **{player_value}**!", 
+                    inline=True
+                    )
+                embed.set_footer(text = "Push! Both you and dealer hit Blackjack")
+                self.stopped = True
+
             # Script shits itself without this condition
             elif dealer_value == player_value >= 17: 
-                content = (
-                    "==============================\n"
-                    f"Dealer's hand: {format_hand(self.game.dealer_hand)} " +
-                    f"(Value: **__{dealer_value}__**)!\n"
-                    f"Your hand: {format_hand(self.game.player_hand)} " +
-                    f"(Value: **__{player_value}__**)!\n"
-                    "==============================\n"
-                    f"Push! Both you and the dealer have equal value."
-                )
+                embed = discord.Embed(title = "================================")
+                embed.add_field(
+                    name = "Dealer hand:", 
+                    value = f"{format_hand(self.game.dealer_hand)} " +
+                    f"| Value: **{dealer_value}**!", 
+                    inline=True
+                    )
+                embed.add_field(
+                    name = "Player hand:", 
+                    value = f"{format_hand(self.game.player_hand)} " +
+                    f"| Value: **{player_value}**!", 
+                    inline=True
+                    )
+                embed.set_footer(text = "Push! Both you and dealer have equal value")
                 self.stopped = True
+
             elif dealer_value == 21:
-                content = (
-                    "==============================\n"
-                    f"Dealer's hand: {format_hand(self.game.dealer_hand)} " + 
-                    f"(Value: **__{dealer_value}__**)!\n"
-                    f"Your hand: {format_hand(self.game.player_hand)} " +
-                    f"(Value: **__{player_value}__**)!\n"
-                    "==============================\n"
-                    f"Dealer has blackjack! You lose!"
-                )
+                embed = discord.Embed(title = "================================")
+                embed.add_field(
+                    name = "Dealer hand:", 
+                    value = f"{format_hand(self.game.dealer_hand)} " +
+                    f"| Value: **{dealer_value}**!", 
+                    inline=True
+                    )
+                embed.add_field(
+                    name = "Player hand:", 
+                    value = f"{format_hand(self.game.player_hand)} " +
+                    f"| Value: **{player_value}**!", 
+                    inline=True
+                    )
+                embed.set_footer(text = "Dealer has Blackjack. You lose!")
                 self.stopped = True
+
             elif player_value < dealer_value <= 21:
-                content = (
-                    "==============================\n"
-                    f"Dealer's hand: {format_hand(self.game.dealer_hand)} " +
-                    f"(Value: **__{dealer_value}__**)!\n"
-                    f"Your hand: {format_hand(self.game.player_hand)} " +
-                    f"(Value: **__{player_value}__**)!\n"
-                    "==============================\n"
-                    f"Dealer wins!"
-                )
+                embed = discord.Embed(title = "================================")
+                embed.add_field(
+                    name = "Dealer hand:", 
+                    value = f"{format_hand(self.game.dealer_hand)} " +
+                    f"| Value: **{dealer_value}**!", 
+                    inline=True
+                    )
+                embed.add_field(
+                    name = "Player hand:", 
+                    value = f"{format_hand(self.game.player_hand)} " +
+                    f"| Value: **{player_value}**!", 
+                    inline=True
+                    )
+                embed.set_footer(text = "Dealer wins!")
                 self.stopped = True
+
             elif 21 >= player_value > dealer_value >= 17:
-                content = (
-                    "==============================\n"
-                    f"Dealer's hand: {format_hand(self.game.dealer_hand)} " + 
-                    f"(Value: **__{dealer_value}__**)!\n"
-                    f"Your hand: {format_hand(self.game.player_hand)} " +
-                    f"(Value: **__{player_value}__**)!\n"
-                    "==============================\n"
-                    f"You win!"
-                )
+                embed = discord.Embed(title = "================================")
+                embed.add_field(
+                    name = "Dealer hand:", 
+                    value = f"{format_hand(self.game.dealer_hand)} " +
+                    f"| Value: **{dealer_value}**!", 
+                    inline=True
+                    )
+                embed.add_field(
+                    name = "Player hand:", 
+                    value = f"{format_hand(self.game.player_hand)} " +
+                    f"| Value: **{player_value}**!", 
+                    inline=True
+                    )
+                embed.set_footer(text = "You win!")
                 self.stopped = True
             
             # Update the message with the final hand values; 
             # Only reproduce buttons if the game is not over
             await interaction.response.edit_message(
-                content=content, 
+                embed=embed,
                 view=None if self.stopped else self
                 )
+            return
 
         except Exception as e:
             print(traceback.print_exc())
@@ -346,34 +404,46 @@ async def blackjack(interaction: discord.Interaction):
         game.check_bust()
 
         if game.dealer_bust == True:
-            await interaction.response.send_message(
-                content = (
-                    "==============================\n"
-                    f"Dealer's hand: {format_hand(game.dealer_hand)} " +
-                    f"(Value: **__{dealer_value}__**)!\n"
-                    f"Your hand: {format_hand(game.player_hand)} " +
-                    f"(Value: **__{player_value}__**)!\n"
-                    "==============================\n"
-                    f"Blackjack! You win!"
+            embed = discord.Embed(title = "================================")
+            embed.add_field(
+                name = "Dealer hand:", 
+                value = f"{format_hand(game.dealer_hand)} " +
+                f"| Value: **{dealer_value}**!", 
+                inline=True
                 )
-            )
+            embed.add_field(
+                name = "Player hand:", 
+                value = f"{format_hand(game.player_hand)} " +
+                f"| Value: **{player_value}**!", 
+                inline=True
+                )
+            embed.set_footer(text = "Blackjack! You win!")
+            
+            await interaction.response.send_message(embed=embed, view=view)
+            return
 
         # Enables blackjack buttons
         view = blackjack_view(game, interaction.user)
 
-        await interaction.response.send_message(
-            content=(
-                f"Welcome to the table, {interaction.user.mention}.\n"
-                "==============================\n"
-                f"Dealer's hand: {format_hand(game.dealer_hand)} " + 
-                f"| Value: **__{dealer_value}__**\n"
-                f"Your hand: {format_hand(game.player_hand)} " +
-                f"| Value: **__{player_value}__**\n"
-                "==============================\n"
-            ),
-            
-            view=view
-        )
+        embed = discord.Embed(
+            title = f"Welcome to the table, {interaction.user.name}"
+            )
+        embed.add_field(
+            name = "Dealer hand:", 
+            value = f"{format_hand(game.dealer_hand)} " +
+            f"| Value: **{dealer_value}**!", 
+            inline=True
+            )
+        embed.add_field(
+            name = "Player hand:", 
+            value = f"{format_hand(game.player_hand)} " +
+            f"| Value: **{player_value}**!", 
+            inline=True
+            )
+        
+        await interaction.response.send_message(embed=embed, view=view)
+        return
+        
 
         
 
