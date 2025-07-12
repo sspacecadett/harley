@@ -7,8 +7,8 @@ I needed a project outside of my GIS studies to expand my Python prowess and rem
 
 ***
 **Current functions:**
-- Responds to a few key phrases when name mentioned
 - /blackjack: Plays blackjack!
+- Responds to a few key phrases when name mentioned
 
 **Future changes:**
 - Clean up blackjack logic (redundant strings; just write the static strings before running the elifs dude)
