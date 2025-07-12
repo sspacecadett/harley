@@ -15,6 +15,3 @@ I needed a project outside of my GIS studies to expand my Python prowess and rem
 - Implement currency system, including player balance
 - Create more functions for alternative means of increasing funds
 - Sybau reply lists current hour (interaction user timezone if possible)
-
-**Known issues:**
-- Hit/Stand buttons can sometimes take took long to appear (Python moment but this code is messy so maybe im the problem)
